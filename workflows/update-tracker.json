@@ -1,0 +1,556 @@
+{
+  "name": "update-tracker",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "statut"
+            },
+            {
+              "name": "entreprise"
+            },
+            {
+              "name": "poste"
+            },
+            {
+              "name": "contact_rh"
+            },
+            {
+              "name": "prochaine_etape"
+            },
+            {
+              "name": "langue"
+            },
+            {
+              "name": "confiance",
+              "type": "number"
+            },
+            {
+              "name": "priorite",
+              "type": "number"
+            },
+            {
+              "name": "review_manuel",
+              "type": "boolean"
+            },
+            {
+              "name": "emailId"
+            },
+            {
+              "name": "from"
+            },
+            {
+              "name": "subject"
+            },
+            {
+              "name": "date"
+            }
+          ]
+        }
+      },
+      "id": "c3e8d152-5583-427a-b915-43d273bd4ffc",
+      "name": "Appel depuis un workflow",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        96
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.statut }}",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              },
+              "rightValue": "HORS_SCOPE"
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "e6741a44-ff20-483e-9a59-9069147ee6b3",
+      "name": "In Scope?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        224,
+        96
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "16b0IWlJ9RBPFeaQ863YyTHmm4pWztvT-SxerLX5Q5Fw"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "candidatures"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "Email ID"
+          ],
+          "value": {
+            "Date": "={{ $json.date }}",
+            "Entreprise": "={{ $json.entreprise || \"\" }}",
+            "Poste": "={{ $json.poste || \"\" }}",
+            "Statut": "={{ $json.statut }}",
+            "Contact RH": "={{ $json.contact_rh || \"\" }}",
+            "Prochaine étape": "={{ $json.prochaine_etape || \"\" }}",
+            "Email ID": "={{ $json.emailId }}",
+            "Action": "—",
+            "Confiance IA": "={{ $json.confiance }}",
+            "Langue": "={{ $json.langue }}",
+            "Priorité": "={{ $json.priorite }}",
+            "Relance": "NON"
+          },
+          "schema": [
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "Entreprise",
+              "displayName": "Entreprise",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "Poste",
+              "displayName": "Poste",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "Statut",
+              "displayName": "Statut",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "Contact RH",
+              "displayName": "Contact RH",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "Prochaine étape",
+              "displayName": "Prochaine étape",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "Email ID",
+              "displayName": "Email ID",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Action",
+              "displayName": "Action",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "Confiance IA",
+              "displayName": "Confiance IA",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "Langue",
+              "displayName": "Langue",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "Priorité",
+              "displayName": "Priorité",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "Relance",
+              "displayName": "Relance",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "47618136-576a-4518-b75b-5ae87bfb5791",
+      "name": "Upsert Candidature",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        448,
+        0
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "apQDheJMuIeVyriX",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "911560431",
+        "text": "={{ ({POSITIF:\"🟢 POSITIF\",REFUS:\"🔴 REFUS\",EN_ATTENTE:\"🟡 EN ATTENTE\"})[$('Appel depuis un workflow').item.json.statut] }} — {{ String($('Appel depuis un workflow').item.json.entreprise || \"Entreprise inconnue\").replace(/([_*`\\[])/g, '\\\\$1') }}\nPoste : {{ String($('Appel depuis un workflow').item.json.poste || \"?\").replace(/([_*`\\[])/g, '\\\\$1') }}\nPriorité : {{ $('Appel depuis un workflow').item.json.priorite }}/10\n{{ $('Appel depuis un workflow').item.json.prochaine_etape ? \"Prochaine étape : \" + String($('Appel depuis un workflow').item.json.prochaine_etape).replace(/([_*`\\[])/g, '\\\\$1') : \"\" }}\nContact : {{ String($('Appel depuis un workflow').item.json.contact_rh || \"-\").replace(/([_*`\\[])/g, '\\\\$1') }}\n{{ $('Appel depuis un workflow').item.json.review_manuel ? \"⚠️ Classification incertaine, à vérifier\" : \"\" }}",
+        "replyMarkup": "={{ $('Appel depuis un workflow').item.json.statut === 'REFUS' ? 'inlineKeyboard' : 'none' }}",
+        "forceReply": {},
+        "inlineKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "✉️ Feedback",
+                    "additionalFields": {
+                      "callback_data": "={{ 'fb:' + $('Appel depuis un workflow').item.json.emailId }}"
+                    }
+                  },
+                  {
+                    "text": "📥 Archiver",
+                    "additionalFields": {
+                      "callback_data": "={{ 'ar:' + $('Appel depuis un workflow').item.json.emailId }}"
+                    }
+                  },
+                  {
+                    "text": "🚫 Ignorer",
+                    "additionalFields": {
+                      "callback_data": "={{ 'ig:' + $('Appel depuis un workflow').item.json.emailId }}"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "replyKeyboardOptions": {},
+        "replyKeyboardRemove": {},
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "id": "2ba98664-8111-4d40-9dd7-c86b84bf5f00",
+      "name": "Notify Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        672,
+        0
+      ],
+      "webhookId": "533653e1-b34a-44f4-a4a2-4b4c87d4a25c",
+      "credentials": {
+        "telegramApi": {
+          "id": "W4lkGP4hs8fVSo6K",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "16b0IWlJ9RBPFeaQ863YyTHmm4pWztvT-SxerLX5Q5Fw"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "logs"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "value": {
+            "Timestamp": "={{ $now.toISO() }}",
+            "Email ID": "={{ $('Appel depuis un workflow').item.json.emailId }}",
+            "Workflow": "update-tracker",
+            "Statut exécution": "SUCCESS",
+            "Message": "={{ $('Appel depuis un workflow').item.json.statut + ' ' + ($('Appel depuis un workflow').item.json.entreprise || '') }}"
+          },
+          "schema": [
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "Email ID",
+              "displayName": "Email ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "Workflow",
+              "displayName": "Workflow",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "Statut exécution",
+              "displayName": "Statut exécution",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "Message",
+              "displayName": "Message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "699399a8-599e-4207-ade4-f5735cf9e8d4",
+      "name": "Log Success",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        896,
+        0
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "apQDheJMuIeVyriX",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "16b0IWlJ9RBPFeaQ863YyTHmm4pWztvT-SxerLX5Q5Fw"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "logs"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "value": {
+            "Timestamp": "={{ $now.toISO() }}",
+            "Email ID": "={{ $json.emailId }}",
+            "Workflow": "update-tracker",
+            "Statut exécution": "SUCCESS",
+            "Message": "HORS_SCOPE ignoré"
+          },
+          "schema": [
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "Email ID",
+              "displayName": "Email ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "Workflow",
+              "displayName": "Workflow",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "Statut exécution",
+              "displayName": "Statut exécution",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "Message",
+              "displayName": "Message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "57762b16-dc18-46cd-a70e-5de5a317ce27",
+      "name": "Log Hors Scope",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        448,
+        192
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "apQDheJMuIeVyriX",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Appel depuis un workflow": {
+      "main": [
+        [
+          {
+            "node": "In Scope?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "In Scope?": {
+      "main": [
+        [
+          {
+            "node": "Upsert Candidature",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Log Hors Scope",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upsert Candidature": {
+      "main": [
+        [
+          {
+            "node": "Notify Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notify Telegram": {
+      "main": [
+        [
+          {
+            "node": "Log Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": true
+  },
+  "versionId": "6cfc6602-a086-452f-99d6-b7796c873830",
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp",
+    "instanceId": "8bc5fc1d77c6e196f583ac2ba9a38c7954574a960f4cfec8b5fa7623c276eea3"
+  },
+  "nodeGroups": [],
+  "id": "vMQ1AIGU0jOLN66U",
+  "tags": []
+}

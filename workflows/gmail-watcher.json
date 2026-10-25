@@ -1,0 +1,424 @@
+{
+  "name": "gmail-watcher",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "simple": false,
+        "filters": {
+          "labelIds": [
+            "INBOX"
+          ]
+        },
+        "options": {}
+      },
+      "id": "8e3e5efe-fdfa-473f-9c70-35cf46ed4510",
+      "name": "Gmail Trigger",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        0
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "50w7rTCDeIGzSoHz",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "combinator": "or",
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "sender",
+              "leftValue": "={{ $json.from.text }}",
+              "rightValue": "recrutement|recruit|\\brh@|\\bhr@|talent|hiring|careers|jobs@",
+              "operator": {
+                "type": "string",
+                "operation": "regex"
+              }
+            },
+            {
+              "id": "subject",
+              "leftValue": "={{ $json.subject }}",
+              "rightValue": "candidature|entretien|recrutement|offre d'emploi|poste d[e']|(le|ce|votre) poste|prochaine étape|retenu|(your|votre|an|the) application|application (for|to|received|status)|interview|recruit|job offer|(the|this|a|your) position|position (of|at|for)|next steps|assessment|test technique|technical test",
+              "operator": {
+                "type": "string",
+                "operation": "regex"
+              }
+            },
+            {
+              "id": "body",
+              "leftValue": "={{ $json.text }}",
+              "rightValue": "nous avons le regret|non retenu|suite à votre candidature|unfortunately|not moving forward|we regret",
+              "operator": {
+                "type": "string",
+                "operation": "regex"
+              }
+            }
+          ]
+        },
+        "looseTypeValidation": true,
+        "options": {
+          "ignoreCase": true
+        }
+      },
+      "id": "284148e9-7e0c-473e-bb00-f1bc83eb721b",
+      "name": "Recruitment Emails Only",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.4,
+      "position": [
+        224,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "FLzn3DwiHfNaYWXe"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "emailId": "={{ $json.id }}",
+            "from": "={{ $json.from.text }}",
+            "subject": "={{ $json.subject }}",
+            "date": "={{ $json.date }}",
+            "body": "={{ ($json.text || \"\").slice(0, 500) }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "emailId",
+              "displayName": "emailId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "from",
+              "displayName": "from",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "subject",
+              "displayName": "subject",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "date",
+              "displayName": "date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "body",
+              "displayName": "body",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ]
+        },
+        "mode": "each",
+        "options": {}
+      },
+      "id": "41a69f8a-0213-49ad-aea8-7363a1d1c507",
+      "name": "Call email-classifier",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.4,
+      "position": [
+        448,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "vMQ1AIGU0jOLN66U"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "statut": "={{ $json.statut }}",
+            "entreprise": "={{ $json.entreprise || \"\" }}",
+            "poste": "={{ $json.poste || \"\" }}",
+            "contact_rh": "={{ $json.contact_rh || \"\" }}",
+            "prochaine_etape": "={{ $json.prochaine_etape || \"\" }}",
+            "langue": "={{ $json.langue }}",
+            "confiance": "={{ $json.confiance }}",
+            "priorite": "={{ $json.priorite }}",
+            "review_manuel": "={{ !!$json.review_manuel }}",
+            "emailId": "={{ $json.emailId }}",
+            "from": "={{ $json.from }}",
+            "subject": "={{ $json.subject }}",
+            "date": "={{ $json.date }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "statut",
+              "displayName": "statut",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "entreprise",
+              "displayName": "entreprise",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "poste",
+              "displayName": "poste",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "contact_rh",
+              "displayName": "contact_rh",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "prochaine_etape",
+              "displayName": "prochaine_etape",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "langue",
+              "displayName": "langue",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "confiance",
+              "displayName": "confiance",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number"
+            },
+            {
+              "id": "priorite",
+              "displayName": "priorite",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number"
+            },
+            {
+              "id": "review_manuel",
+              "displayName": "review_manuel",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "boolean"
+            },
+            {
+              "id": "emailId",
+              "displayName": "emailId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "from",
+              "displayName": "from",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "subject",
+              "displayName": "subject",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "date",
+              "displayName": "date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ]
+        },
+        "mode": "each",
+        "options": {}
+      },
+      "id": "22dd93ec-db44-4be6-aaaa-762b1274fcda",
+      "name": "Call update-tracker",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.4,
+      "position": [
+        912,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "combinator": "and",
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "alert",
+              "leftValue": "={{ $json.from.text }}",
+              "rightValue": "jobalerts-noreply@|newsletters-noreply@|jobs-listings@",
+              "operator": {
+                "type": "string",
+                "operation": "notRegex"
+              }
+            }
+          ]
+        },
+        "looseTypeValidation": true,
+        "options": {
+          "ignoreCase": true
+        }
+      },
+      "id": "7efe8932-a165-4471-b696-685c6dbb5978",
+      "name": "Not Job Alerts",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.4,
+      "position": [
+        912,
+        304
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Recruitment Emails Only",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call email-classifier": {
+      "main": [
+        [
+          {
+            "node": "Call update-tracker",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recruitment Emails Only": {
+      "main": [
+        [
+          {
+            "node": "Not Job Alerts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Not Job Alerts": {
+      "main": [
+        [
+          {
+            "node": "Call email-classifier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": true,
+    "errorWorkflow": "f2lmqnkpVmhX3yHc"
+  },
+  "versionId": "c9387e7f-a175-489c-929c-85ef17392768",
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp",
+    "instanceId": "8bc5fc1d77c6e196f583ac2ba9a38c7954574a960f4cfec8b5fa7623c276eea3"
+  },
+  "nodeGroups": [],
+  "id": "FNklezQsmDoGOqg6",
+  "tags": []
+}

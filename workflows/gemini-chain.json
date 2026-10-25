@@ -1,0 +1,335 @@
+{
+  "name": "gemini-chain",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "workflowInputs",
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "system",
+              "type": "string"
+            },
+            {
+              "name": "user",
+              "type": "string"
+            },
+            {
+              "name": "json",
+              "type": "boolean"
+            },
+            {
+              "name": "maxTokens",
+              "type": "number"
+            },
+            {
+              "name": "temperature",
+              "type": "number"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "8a2b7a93-d460-47af-a671-35cc625a84d5",
+      "name": "Appel depuis un workflow"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "models/gemini-3.5-flash"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "={{ $('Build Prompt').first().json.user }}"
+            }
+          ]
+        },
+        "jsonOutput": "={{ $('Appel depuis un workflow').first().json.json }}",
+        "builtInTools": {
+          "googleSearch": false,
+          "urlContext": false,
+          "codeExecution": false
+        },
+        "options": {
+          "systemMessage": "={{ $('Appel depuis un workflow').first().json.system }}",
+          "maxOutputTokens": "={{ $('Appel depuis un workflow').first().json.maxTokens }}",
+          "temperature": "={{ $('Appel depuis un workflow').first().json.temperature }}",
+          "thinkingBudget": 0
+        }
+      },
+      "id": "cb8e71ad-1341-4b3d-bdb7-4704950e8bbf",
+      "name": "Gemini 3.5 Flash",
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.2,
+      "position": [
+        224,
+        0
+      ],
+      "retryOnFail": false,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "DOFHdxVUiUYvMUWe",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "models/gemini-3.6-flash"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "={{ $('Build Prompt').first().json.user }}"
+            }
+          ]
+        },
+        "jsonOutput": "={{ $('Appel depuis un workflow').first().json.json }}",
+        "builtInTools": {
+          "googleSearch": false,
+          "urlContext": false,
+          "codeExecution": false
+        },
+        "options": {
+          "systemMessage": "={{ $('Appel depuis un workflow').first().json.system }}",
+          "maxOutputTokens": "={{ $('Appel depuis un workflow').first().json.maxTokens }}",
+          "temperature": "={{ $('Appel depuis un workflow').first().json.temperature }}",
+          "thinkingBudget": 0
+        }
+      },
+      "id": "6f9f5466-c6b4-4d50-a503-d2558fe5d82c",
+      "name": "Gemini 3.6 Flash",
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.2,
+      "position": [
+        448,
+        0
+      ],
+      "retryOnFail": false,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "DOFHdxVUiUYvMUWe",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "models/gemini-3.5-flash-lite"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "={{ $('Build Prompt').first().json.user }}"
+            }
+          ]
+        },
+        "jsonOutput": "={{ $('Appel depuis un workflow').first().json.json }}",
+        "builtInTools": {
+          "googleSearch": false,
+          "urlContext": false,
+          "codeExecution": false
+        },
+        "options": {
+          "systemMessage": "={{ $('Appel depuis un workflow').first().json.system }}",
+          "maxOutputTokens": "={{ $('Appel depuis un workflow').first().json.maxTokens }}",
+          "temperature": "={{ $('Appel depuis un workflow').first().json.temperature }}"
+        }
+      },
+      "id": "e1ddf04d-c96e-4595-9ad5-c8677979cc81",
+      "name": "Gemini 3.5 Flash Lite",
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.2,
+      "position": [
+        672,
+        0
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "DOFHdxVUiUYvMUWe",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "models/gemini-3.1-flash-lite"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "={{ $('Build Prompt').first().json.user }}"
+            }
+          ]
+        },
+        "jsonOutput": "={{ $('Appel depuis un workflow').first().json.json }}",
+        "builtInTools": {
+          "googleSearch": false,
+          "urlContext": false,
+          "codeExecution": false
+        },
+        "options": {
+          "systemMessage": "={{ $('Appel depuis un workflow').first().json.system }}",
+          "maxOutputTokens": "={{ $('Appel depuis un workflow').first().json.maxTokens }}",
+          "temperature": "={{ $('Appel depuis un workflow').first().json.temperature }}",
+          "thinkingBudget": 0
+        }
+      },
+      "id": "2c2a03e8-27bd-48e5-969c-d0c80bd01a5d",
+      "name": "Gemini 3.1 Flash Lite",
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.2,
+      "position": [
+        896,
+        0
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "DOFHdxVUiUYvMUWe",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "models/gemini-3-flash-preview"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "={{ $('Build Prompt').first().json.user }}"
+            }
+          ]
+        },
+        "jsonOutput": "={{ $('Appel depuis un workflow').first().json.json }}",
+        "builtInTools": {
+          "googleSearch": false,
+          "urlContext": false,
+          "codeExecution": false
+        },
+        "options": {
+          "systemMessage": "={{ $('Appel depuis un workflow').first().json.system }}",
+          "maxOutputTokens": "={{ $('Appel depuis un workflow').first().json.maxTokens }}",
+          "temperature": "={{ $('Appel depuis un workflow').first().json.temperature }}",
+          "thinkingBudget": 0
+        }
+      },
+      "id": "e75a8f0f-c782-47d9-9730-649dd29738d1",
+      "name": "Gemini 3 Flash Preview",
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.2,
+      "position": [
+        1120,
+        0
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "DOFHdxVUiUYvMUWe",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Appel depuis un workflow": {
+      "main": [
+        [
+          {
+            "node": "Gemini 3.5 Flash",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini 3.5 Flash": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Gemini 3.6 Flash",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini 3.6 Flash": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Gemini 3.5 Flash Lite",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini 3.5 Flash Lite": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Gemini 3.1 Flash Lite",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini 3.1 Flash Lite": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Gemini 3 Flash Preview",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {}
+}

@@ -1,0 +1,398 @@
+{
+  "name": "reclassify-review",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "76c0a6f1-48cb-4bdd-9791-39571e61bdd2",
+      "name": "Lancer reclassement",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "16b0IWlJ9RBPFeaQ863YyTHmm4pWztvT-SxerLX5Q5Fw"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "candidatures"
+        },
+        "options": {}
+      },
+      "id": "d8181c59-068c-46f3-a8aa-0739a66c62e2",
+      "name": "Get Candidatures",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        224,
+        0
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "apQDheJMuIeVyriX",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "combinator": "and",
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "statut",
+              "leftValue": "={{ $json.Statut }}",
+              "rightValue": "EN_ATTENTE",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "conf",
+              "leftValue": "={{ String($json[\"Confiance IA\"]) !== \"\" && Number($json[\"Confiance IA\"]) === 0 && !!$json[\"Email ID\"] }}",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "ign",
+              "leftValue": "={{ $json.Action }}",
+              "rightValue": "IGNORÉ",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ]
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "4f9d8901-a58b-431d-8c7c-e6b6dc75c3f8",
+      "name": "Classement echoue",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.4,
+      "position": [
+        448,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "maxItems": 10
+      },
+      "id": "0183fa44-3ef2-4fb0-ac17-dce8426571c2",
+      "name": "Cap 10",
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        672,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "messageId": "={{ $json[\"Email ID\"] }}",
+        "simple": false,
+        "options": {}
+      },
+      "id": "01dad707-2893-4415-a55d-81ea8f8ad718",
+      "name": "Get Email",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        896,
+        0
+      ],
+      "webhookId": "0d848c4d-9e05-4d2a-89d3-904e72bf62fb",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "50w7rTCDeIGzSoHz",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "FLzn3DwiHfNaYWXe"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "emailId": "={{ $json.id }}",
+            "from": "={{ $json.from.text }}",
+            "subject": "={{ $json.subject }}",
+            "date": "={{ $json.date }}",
+            "body": "={{ ($json.text || \"\").slice(0, 500) }}"
+          },
+          "matchingColumns": []
+        },
+        "mode": "each",
+        "options": {}
+      },
+      "id": "77e8c6d4-394f-4a57-8f66-5e173836e69b",
+      "name": "Call email-classifier",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.4,
+      "position": [
+        1120,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "vMQ1AIGU0jOLN66U"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "statut": "={{ $json.statut }}",
+            "entreprise": "={{ $json.entreprise || \"\" }}",
+            "poste": "={{ $json.poste || \"\" }}",
+            "contact_rh": "={{ $json.contact_rh || \"\" }}",
+            "prochaine_etape": "={{ $json.prochaine_etape || \"\" }}",
+            "langue": "={{ $json.langue }}",
+            "confiance": "={{ $json.confiance }}",
+            "priorite": "={{ $json.priorite }}",
+            "review_manuel": "={{ !!$json.review_manuel }}",
+            "emailId": "={{ $json.emailId }}",
+            "from": "={{ $json.from }}",
+            "subject": "={{ $json.subject }}",
+            "date": "={{ $json.date }}"
+          },
+          "matchingColumns": []
+        },
+        "mode": "each",
+        "options": {}
+      },
+      "id": "bbb4f404-0122-4c28-ad9e-e67cbd693b81",
+      "name": "Call update-tracker",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.4,
+      "position": [
+        1568,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "combinator": "and",
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "hs",
+              "leftValue": "={{ $json.statut }}",
+              "rightValue": "HORS_SCOPE",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ]
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1344,
+        0
+      ],
+      "id": "4a0b7e28-6b7a-4a55-8c86-51907fba563a",
+      "name": "Hors scope ?"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "16b0IWlJ9RBPFeaQ863YyTHmm4pWztvT-SxerLX5Q5Fw"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "candidatures"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "Email ID"
+          ],
+          "value": {
+            "Email ID": "={{ $json.emailId }}",
+            "Action": "IGNORÉ"
+          },
+          "schema": [
+            {
+              "id": "Email ID",
+              "displayName": "Email ID",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Action",
+              "displayName": "Action",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1568,
+        -112
+      ],
+      "id": "9382405c-aa96-49bd-9888-9d50b57da6b5",
+      "name": "Marquer IGNORE",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "apQDheJMuIeVyriX",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Lancer reclassement": {
+      "main": [
+        [
+          {
+            "node": "Get Candidatures",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Candidatures": {
+      "main": [
+        [
+          {
+            "node": "Classement echoue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Classement echoue": {
+      "main": [
+        [
+          {
+            "node": "Cap 10",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cap 10": {
+      "main": [
+        [
+          {
+            "node": "Get Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Email": {
+      "main": [
+        [
+          {
+            "node": "Call email-classifier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call email-classifier": {
+      "main": [
+        [
+          {
+            "node": "Hors scope ?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Hors scope ?": {
+      "main": [
+        [
+          {
+            "node": "Marquer IGNORE",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Call update-tracker",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": true
+  },
+  "versionId": "fee3c380-0389-490f-a9cc-7b488d359aa6",
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp",
+    "instanceId": "8bc5fc1d77c6e196f583ac2ba9a38c7954574a960f4cfec8b5fa7623c276eea3"
+  },
+  "nodeGroups": [],
+  "id": "WMD2eg3dXzqmAxmq",
+  "tags": []
+}

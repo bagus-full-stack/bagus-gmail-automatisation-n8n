@@ -1,0 +1,577 @@
+{
+  "name": "import-historique",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "b2079476-3daa-4570-8374-71f3a26a64c8",
+      "name": "Lancer import historique",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "16b0IWlJ9RBPFeaQ863YyTHmm4pWztvT-SxerLX5Q5Fw"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "candidatures"
+        },
+        "options": {}
+      },
+      "id": "e7c62d57-d990-43c6-9faf-02307ae7bbf2",
+      "name": "Get Existing",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        224,
+        0
+      ],
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "apQDheJMuIeVyriX",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "limit": 15,
+        "simple": false,
+        "filters": {
+          "labelIds": [
+            "INBOX"
+          ],
+          "q": "newer_than:30d -from:(jobalerts-noreply@linkedin.com OR newsletters-noreply@linkedin.com) (subject:(candidature OR entretien OR recrutement OR \"offre d'emploi\" OR \"poste de\" OR \"le poste\" OR \"votre poste\" OR \"prochaine étape\" OR retenu OR \"your application\" OR \"votre application\" OR \"application for\" OR interview OR recruit OR \"job offer\" OR \"the position\" OR \"this position\" OR \"next steps\" OR assessment OR \"test technique\" OR \"technical test\") OR from:(recrutement OR recruit OR rh OR hr OR talent OR hiring OR careers OR jobs) OR \"nous avons le regret\" OR \"non retenu\" OR \"suite à votre candidature\" OR unfortunately OR \"not moving forward\" OR \"we regret\")"
+        },
+        "options": {}
+      },
+      "id": "98bc2d21-5d28-49f1-9123-dc2638b0ac6a",
+      "name": "Get Emails",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        448,
+        0
+      ],
+      "executeOnce": true,
+      "webhookId": "865092b9-1002-4eb2-ae9c-59e1f661d814",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "50w7rTCDeIGzSoHz",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "combinator": "or",
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "sender",
+              "leftValue": "={{ $json.from.text }}",
+              "rightValue": "recrutement|recruit|\\brh@|\\bhr@|talent|hiring|careers|jobs@",
+              "operator": {
+                "type": "string",
+                "operation": "regex"
+              }
+            },
+            {
+              "id": "subject",
+              "leftValue": "={{ $json.subject }}",
+              "rightValue": "candidature|entretien|recrutement|offre d'emploi|poste d[e']|(le|ce|votre) poste|prochaine étape|retenu|(your|votre|an|the) application|application (for|to|received|status)|interview|recruit|job offer|(the|this|a|your) position|position (of|at|for)|next steps|assessment|test technique|technical test",
+              "operator": {
+                "type": "string",
+                "operation": "regex"
+              }
+            },
+            {
+              "id": "body",
+              "leftValue": "={{ $json.text }}",
+              "rightValue": "nous avons le regret|non retenu|suite à votre candidature|unfortunately|not moving forward|we regret",
+              "operator": {
+                "type": "string",
+                "operation": "regex"
+              }
+            }
+          ]
+        },
+        "looseTypeValidation": true,
+        "options": {
+          "ignoreCase": true
+        }
+      },
+      "id": "1d53d25c-87d6-4d11-b773-0a8af647f5b8",
+      "name": "Recruitment Emails Only",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.4,
+      "position": [
+        672,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "combinator": "and",
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "new",
+              "leftValue": "={{ !$('Get Existing').all().some(i => i.json['Email ID'] === $json.id) }}",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ]
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "3feb7017-a14a-4b34-a7bf-cd559073c84d",
+      "name": "Not Already Tracked",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.4,
+      "position": [
+        896,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "FLzn3DwiHfNaYWXe"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "emailId": "={{ $json.id }}",
+            "from": "={{ $json.from.text }}",
+            "subject": "={{ $json.subject }}",
+            "date": "={{ $json.date }}",
+            "body": "={{ ($json.text || \"\").slice(0, 500) }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "emailId",
+              "displayName": "emailId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "from",
+              "displayName": "from",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "subject",
+              "displayName": "subject",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "date",
+              "displayName": "date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "body",
+              "displayName": "body",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ]
+        },
+        "mode": "each",
+        "options": {}
+      },
+      "id": "f067ef7c-5c1c-421b-aad8-46a012f16623",
+      "name": "Call email-classifier",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.4,
+      "position": [
+        1120,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "combinator": "and",
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "scope",
+              "leftValue": "={{ $json.statut }}",
+              "rightValue": "HORS_SCOPE",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "8086be09-4abb-4030-833a-1cc872d809a7",
+      "name": "Keep In Scope",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.4,
+      "position": [
+        1344,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "16b0IWlJ9RBPFeaQ863YyTHmm4pWztvT-SxerLX5Q5Fw"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "candidatures"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "Email ID"
+          ],
+          "value": {
+            "Date": "={{ $json.date }}",
+            "Entreprise": "={{ $json.entreprise || \"\" }}",
+            "Poste": "={{ $json.poste || \"\" }}",
+            "Statut": "={{ $json.statut }}",
+            "Contact RH": "={{ $json.contact_rh || \"\" }}",
+            "Prochaine étape": "={{ $json.prochaine_etape || \"\" }}",
+            "Email ID": "={{ $json.emailId }}",
+            "Action": "IMPORT",
+            "Confiance IA": "={{ $json.confiance }}",
+            "Langue": "={{ $json.langue }}",
+            "Priorité": "={{ $json.priorite }}",
+            "Relance": "IMPORT"
+          },
+          "schema": [
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "Entreprise",
+              "displayName": "Entreprise",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "Poste",
+              "displayName": "Poste",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "Statut",
+              "displayName": "Statut",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "Contact RH",
+              "displayName": "Contact RH",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "Prochaine étape",
+              "displayName": "Prochaine étape",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "Email ID",
+              "displayName": "Email ID",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Action",
+              "displayName": "Action",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "Confiance IA",
+              "displayName": "Confiance IA",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "Langue",
+              "displayName": "Langue",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "Priorité",
+              "displayName": "Priorité",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "Relance",
+              "displayName": "Relance",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "e35a828d-4b21-44e4-92a3-489da6985412",
+      "name": "Upsert Candidature",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1568,
+        0
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "apQDheJMuIeVyriX",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "combinator": "and",
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "alert",
+              "leftValue": "={{ $json.from.text }}",
+              "rightValue": "jobalerts-noreply@|newsletters-noreply@|jobs-listings@",
+              "operator": {
+                "type": "string",
+                "operation": "notRegex"
+              }
+            }
+          ]
+        },
+        "looseTypeValidation": true,
+        "options": {
+          "ignoreCase": true
+        }
+      },
+      "id": "b320ecb0-ced7-4988-9f70-ea7365f4dcca",
+      "name": "Not Job Alerts",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.4,
+      "position": [
+        912,
+        304
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Lancer import historique": {
+      "main": [
+        [
+          {
+            "node": "Get Existing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Existing": {
+      "main": [
+        [
+          {
+            "node": "Get Emails",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Emails": {
+      "main": [
+        [
+          {
+            "node": "Recruitment Emails Only",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Not Already Tracked": {
+      "main": [
+        [
+          {
+            "node": "Call email-classifier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call email-classifier": {
+      "main": [
+        [
+          {
+            "node": "Keep In Scope",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Keep In Scope": {
+      "main": [
+        [
+          {
+            "node": "Upsert Candidature",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recruitment Emails Only": {
+      "main": [
+        [
+          {
+            "node": "Not Job Alerts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Not Job Alerts": {
+      "main": [
+        [
+          {
+            "node": "Not Already Tracked",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": true
+  },
+  "versionId": "d4ac77e6-55ca-4474-b90f-f33987433be7",
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp",
+    "instanceId": "8bc5fc1d77c6e196f583ac2ba9a38c7954574a960f4cfec8b5fa7623c276eea3"
+  },
+  "nodeGroups": [],
+  "id": "R8DLD3wKK9tlVwS4",
+  "tags": []
+}

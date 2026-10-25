@@ -1,0 +1,272 @@
+{
+  "name": "relance-tracker",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      },
+      "id": "d8a63a6c-7c52-466c-b5e6-8bfca7cd71de",
+      "name": "Tous les jours 9h",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "16b0IWlJ9RBPFeaQ863YyTHmm4pWztvT-SxerLX5Q5Fw"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "candidatures"
+        },
+        "options": {}
+      },
+      "id": "116d1ac0-12d0-486f-b38d-6c54b79ac133",
+      "name": "Get Candidatures",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        224,
+        0
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "apQDheJMuIeVyriX",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "combinator": "and",
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "statut",
+              "leftValue": "={{ $json.Statut }}",
+              "rightValue": "EN_ATTENTE",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "relance",
+              "leftValue": "={{ $json.Relance }}",
+              "rightValue": "NON",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "ent",
+              "leftValue": "={{ $json.Entreprise }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "age",
+              "leftValue": "={{ DateTime.fromISO($json.Date).isValid && DateTime.fromISO($json.Date) < $now.minus({ days: 7 }) }}",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "closed",
+              "leftValue": "={{ !$('Get Candidatures').all().some(i => i.json.Entreprise === $json.Entreprise && ['REFUS','POSITIF'].includes(i.json.Statut) && (!i.json.Poste || !$json.Poste || i.json.Poste === $json.Poste) && DateTime.fromISO(i.json.Date) >= DateTime.fromISO($json.Date)) }}",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ]
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "1b9ef556-4200-4b1a-ad72-50df10b26851",
+      "name": "Relance Due",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.4,
+      "position": [
+        448,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "911560431",
+        "text": "=⏰ Relance à envoyer — {{ String($json.Entreprise || 'Entreprise inconnue').replace(/([_*`\\[])/g, '\\\\$1') }}\nPoste : {{ String($json.Poste || '?').replace(/([_*`\\[])/g, '\\\\$1') }}\nSans réponse depuis plus de 7 jours (candidature du {{ $json.Date }}).\nContact : {{ String($json['Contact RH'] || '-').replace(/([_*`\\[])/g, '\\\\$1') }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "id": "e072184d-ce49-404f-b090-d311f01cc804",
+      "name": "Notify Relance",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        672,
+        0
+      ],
+      "webhookId": "d36ba884-1dab-42c7-bf4d-4bc09698a859",
+      "credentials": {
+        "telegramApi": {
+          "id": "W4lkGP4hs8fVSo6K",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "16b0IWlJ9RBPFeaQ863YyTHmm4pWztvT-SxerLX5Q5Fw"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "candidatures"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "Email ID"
+          ],
+          "value": {
+            "Email ID": "={{ $('Relance Due').item.json['Email ID'] }}",
+            "Relance": "OUI"
+          },
+          "schema": [
+            {
+              "id": "Email ID",
+              "displayName": "Email ID",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Relance",
+              "displayName": "Relance",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "0ec7736a-82a3-48d7-8909-7d1a79db2c42",
+      "name": "Mark Relance Done",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        896,
+        0
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "apQDheJMuIeVyriX",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Tous les jours 9h": {
+      "main": [
+        [
+          {
+            "node": "Get Candidatures",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Candidatures": {
+      "main": [
+        [
+          {
+            "node": "Relance Due",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Relance Due": {
+      "main": [
+        [
+          {
+            "node": "Notify Relance",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notify Relance": {
+      "main": [
+        [
+          {
+            "node": "Mark Relance Done",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": true,
+    "errorWorkflow": "f2lmqnkpVmhX3yHc",
+    "timezone": "Europe/Paris"
+  },
+  "versionId": "250ee84a-33f7-4ace-9ef0-fb146aa2f2b4",
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp",
+    "instanceId": "8bc5fc1d77c6e196f583ac2ba9a38c7954574a960f4cfec8b5fa7623c276eea3"
+  },
+  "nodeGroups": [],
+  "id": "0HOgeQK8LDNI8Agt",
+  "tags": []
+}

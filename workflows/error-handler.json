@@ -1,0 +1,168 @@
+{
+  "name": "error-handler",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "62f2ea0d-f7d4-4ce7-b908-d3b774e19a0c",
+      "name": "Error Trigger",
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "911560431",
+        "text": "=🚨 Erreur workflow : {{ String($json.workflow.name).replace(/([_*`\\[])/g, '\\\\$1') }}\nNœud : {{ String($json.execution.lastNodeExecuted || \"?\").replace(/([_*`\\[])/g, '\\\\$1') }}\nMessage : {{ String(String($json.execution.error.message || \"inconnu\").slice(0, 300)).replace(/([_*`\\[])/g, '\\\\$1') }}\nExécution : {{ $json.execution.url }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "id": "3bc670fd-a187-41e0-a300-3326552df58c",
+      "name": "Alert Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        224,
+        0
+      ],
+      "webhookId": "b0b18db0-a8ab-436e-aa44-586057fa3d9d",
+      "credentials": {
+        "telegramApi": {
+          "id": "W4lkGP4hs8fVSo6K",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "16b0IWlJ9RBPFeaQ863YyTHmm4pWztvT-SxerLX5Q5Fw"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "logs"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "value": {
+            "Timestamp": "={{ $now.toISO() }}",
+            "Email ID": "={{ \"exec \" + $json.execution.id }}",
+            "Workflow": "={{ $json.workflow.name }}",
+            "Statut exécution": "ERREUR",
+            "Message": "={{ ($json.execution.lastNodeExecuted || \"?\") + \" : \" + String($json.execution.error.message || \"inconnu\").slice(0, 300) }}"
+          },
+          "schema": [
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "Email ID",
+              "displayName": "Email ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "Workflow",
+              "displayName": "Workflow",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "Statut exécution",
+              "displayName": "Statut exécution",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "Message",
+              "displayName": "Message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "439493e3-1fc7-4562-bc30-90f4ffaa2d01",
+      "name": "Log Error",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        448,
+        0
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "apQDheJMuIeVyriX",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Alert Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Alert Telegram": {
+      "main": [
+        [
+          {
+            "node": "Log Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": true
+  },
+  "versionId": "045f59d4-e693-483c-ae72-27e014be670a",
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp",
+    "instanceId": "8bc5fc1d77c6e196f583ac2ba9a38c7954574a960f4cfec8b5fa7623c276eea3"
+  },
+  "nodeGroups": [],
+  "id": "f2lmqnkpVmhX3yHc",
+  "tags": []
+}

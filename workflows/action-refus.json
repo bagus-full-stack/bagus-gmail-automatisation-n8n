@@ -1,0 +1,703 @@
+{
+  "name": "action-refus",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "callback_query",
+          "message"
+        ],
+        "additionalFields": {
+          "chatIds": "911560431"
+        }
+      },
+      "id": "5352ad37-c81e-4bc4-82ec-e043faca3084",
+      "name": "Telegram Trigger",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.5,
+      "position": [
+        0,
+        192
+      ],
+      "webhookId": "1a5f79be-8a0b-4368-93f3-aa5980c86ef2",
+      "credentials": {
+        "telegramApi": {
+          "id": "W4lkGP4hs8fVSo6K",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.callback_query.data }}",
+                    "operator": {
+                      "type": "string",
+                      "operation": "startsWith"
+                    },
+                    "rightValue": "fb:"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.callback_query.data }}",
+                    "operator": {
+                      "type": "string",
+                      "operation": "startsWith"
+                    },
+                    "rightValue": "ar:"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.callback_query.data }}",
+                    "operator": {
+                      "type": "string",
+                      "operation": "startsWith"
+                    },
+                    "rightValue": "ig:"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.callback_query.data }}",
+                    "operator": {
+                      "type": "string",
+                      "operation": "startsWith"
+                    },
+                    "rightValue": "bk:"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.callback_query.data }}",
+                    "operator": {
+                      "type": "string",
+                      "operation": "startsWith"
+                    },
+                    "rightValue": "bn:"
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a9f43795-c343-494d-908e-9f1870495786",
+      "name": "Route Action",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        224,
+        176
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "callback",
+        "queryId": "={{ $('Telegram Trigger').item.json.callback_query.id }}",
+        "additionalFields": {
+          "text": "Création du brouillon… 📝"
+        }
+      },
+      "id": "fb274afd-b65f-4eb6-b3fc-d79c01cfb05d",
+      "name": "Answer Feedback",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        448,
+        0
+      ],
+      "webhookId": "3ef03685-a468-4ff1-aa1c-97f0d33f393a",
+      "credentials": {
+        "telegramApi": {
+          "id": "W4lkGP4hs8fVSo6K",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "removeLabels",
+        "messageId": "={{ $('Telegram Trigger').item.json.callback_query.data.slice(3) }}",
+        "labelIds": [
+          "INBOX"
+        ]
+      },
+      "id": "35c20fd8-4f9e-4bfe-82e0-09a5537f1fc3",
+      "name": "Archive Gmail",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        448,
+        192
+      ],
+      "webhookId": "a96cc4b9-382d-47b3-8fcb-73a062e5f483",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "50w7rTCDeIGzSoHz",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "16b0IWlJ9RBPFeaQ863YyTHmm4pWztvT-SxerLX5Q5Fw"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "candidatures"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "Email ID"
+          ],
+          "value": {
+            "Email ID": "={{ $('Telegram Trigger').item.json.callback_query.data.slice(3) }}",
+            "Action": "ARCHIVÉ"
+          },
+          "schema": [
+            {
+              "id": "Email ID",
+              "displayName": "Email ID",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Action",
+              "displayName": "Action",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "98d74138-62bd-426f-aa53-6e24ceaeff54",
+      "name": "Set Action Archive",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        672,
+        192
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "apQDheJMuIeVyriX",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "callback",
+        "queryId": "={{ $('Telegram Trigger').item.json.callback_query.id }}",
+        "additionalFields": {
+          "text": "Archivé ✅"
+        }
+      },
+      "id": "438023d6-a4b2-4f78-be8d-88d12411242d",
+      "name": "Answer Archive",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        896,
+        192
+      ],
+      "webhookId": "ff54a22a-0c01-4b75-86f4-7c3fc5598489",
+      "credentials": {
+        "telegramApi": {
+          "id": "W4lkGP4hs8fVSo6K",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "16b0IWlJ9RBPFeaQ863YyTHmm4pWztvT-SxerLX5Q5Fw"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "candidatures"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "Email ID"
+          ],
+          "value": {
+            "Email ID": "={{ $('Telegram Trigger').item.json.callback_query.data.slice(3) }}",
+            "Action": "IGNORÉ"
+          },
+          "schema": [
+            {
+              "id": "Email ID",
+              "displayName": "Email ID",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Action",
+              "displayName": "Action",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "1c6cad8a-e706-4aa8-ba19-ec87c9fb239b",
+      "name": "Set Action Ignore",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        448,
+        384
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "apQDheJMuIeVyriX",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "callback",
+        "queryId": "={{ $('Telegram Trigger').item.json.callback_query.id }}",
+        "additionalFields": {
+          "text": "Ignoré"
+        }
+      },
+      "id": "200b8724-e44b-4679-bbb4-21d26ffbeef6",
+      "name": "Answer Ignore",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        672,
+        384
+      ],
+      "webhookId": "81c031c6-7ef4-49cf-97a5-a5df438e3a35",
+      "credentials": {
+        "telegramApi": {
+          "id": "W4lkGP4hs8fVSo6K",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "qzL7oAvyJ7Wf7pYM"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "emailId": "={{ $('Telegram Trigger').item.json.callback_query.data.slice(3) }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "emailId",
+              "displayName": "emailId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ]
+        },
+        "mode": "each",
+        "options": {}
+      },
+      "id": "c26a022a-a93f-42ce-beca-fa8d554edb94",
+      "name": "Call send-feedback-request",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.4,
+      "position": [
+        448,
+        -128
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "btn",
+              "leftValue": "={{ !!$json.callback_query }}",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "f7e32d62-9986-45b1-8a67-1fa617b7d983",
+      "name": "Is Button?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        224,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "kbGSQo8gkI8DICOz"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "text": "={{ $json.message?.text || '' }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "text",
+              "displayName": "text",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ]
+        },
+        "mode": "each",
+        "options": {}
+      },
+      "id": "9758a6b4-f5ce-4e6f-8b3b-be3e0eedff1f",
+      "name": "Call chat-telegram",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.4,
+      "position": [
+        448,
+        -320
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "callback",
+        "queryId": "={{ $('Telegram Trigger').item.json.callback_query.id }}",
+        "additionalFields": {
+          "text": "Archivage en cours… 📥"
+        }
+      },
+      "id": "9793c237-1aba-4cfa-a892-0a46e56edfaf",
+      "name": "Answer Batch",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        448,
+        432
+      ],
+      "webhookId": "4d9fee9e-14eb-4282-a65d-103d4df8768a",
+      "credentials": {
+        "telegramApi": {
+          "id": "W4lkGP4hs8fVSo6K",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "KDEj3VY9I9yYwvxa"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "date": "={{ $('Telegram Trigger').item.json.callback_query.data.slice(3) }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "date",
+              "displayName": "date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ]
+        },
+        "mode": "each",
+        "options": {}
+      },
+      "id": "16485489-efcf-4848-9330-daa5ceb38f31",
+      "name": "Call archive-refus-date",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.4,
+      "position": [
+        672,
+        432
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "callback",
+        "queryId": "={{ $('Telegram Trigger').item.json.callback_query.id }}",
+        "additionalFields": {
+          "text": "Annulé"
+        }
+      },
+      "id": "4ae4e83d-5f28-46a7-9f51-80c6072fa221",
+      "name": "Answer Cancel",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        448,
+        560
+      ],
+      "webhookId": "f21f6fb1-5413-4c59-811d-04634bd03bc8",
+      "credentials": {
+        "telegramApi": {
+          "id": "W4lkGP4hs8fVSo6K",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Route Action": {
+      "main": [
+        [
+          {
+            "node": "Answer Feedback",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Archive Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set Action Ignore",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Answer Batch",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Answer Cancel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Archive Gmail": {
+      "main": [
+        [
+          {
+            "node": "Set Action Archive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Action Archive": {
+      "main": [
+        [
+          {
+            "node": "Answer Archive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Action Ignore": {
+      "main": [
+        [
+          {
+            "node": "Answer Ignore",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Answer Feedback": {
+      "main": [
+        [
+          {
+            "node": "Call send-feedback-request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Is Button?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Button?": {
+      "main": [
+        [
+          {
+            "node": "Route Action",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Call chat-telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Answer Batch": {
+      "main": [
+        [
+          {
+            "node": "Call archive-refus-date",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": true,
+    "errorWorkflow": "f2lmqnkpVmhX3yHc"
+  },
+  "versionId": "e40ba5fa-1905-413a-a8ef-c289cd6f2d2d",
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp",
+    "instanceId": "8bc5fc1d77c6e196f583ac2ba9a38c7954574a960f4cfec8b5fa7623c276eea3"
+  },
+  "nodeGroups": [],
+  "id": "eAfCLwf3rbHd7dvC",
+  "tags": []
+}

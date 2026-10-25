@@ -1,0 +1,401 @@
+{
+  "name": "archive-refus-date",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "date"
+            }
+          ]
+        }
+      },
+      "id": "eb199bc0-3edc-4e33-a2a9-5c711e5ff193",
+      "name": "Appel depuis un workflow",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "combinator": "and",
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "fmt",
+              "leftValue": "={{ $json.date }}",
+              "rightValue": "^\\d{4}-\\d{2}-\\d{2}$",
+              "operator": {
+                "type": "string",
+                "operation": "regex"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "6869d16d-954f-4d0a-9bd0-a646bea1c88b",
+      "name": "Valid Date",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.4,
+      "position": [
+        224,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "16b0IWlJ9RBPFeaQ863YyTHmm4pWztvT-SxerLX5Q5Fw"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "candidatures"
+        },
+        "options": {}
+      },
+      "id": "49ee18f8-0067-4377-a783-f5c4de7775dc",
+      "name": "Get Candidatures",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        448,
+        0
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "apQDheJMuIeVyriX",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "combinator": "and",
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "statut",
+              "leftValue": "={{ $json.Statut }}",
+              "rightValue": "REFUS",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "action",
+              "leftValue": "={{ $json.Action }}",
+              "rightValue": "ARCHIVÉ",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            },
+            {
+              "id": "day",
+              "leftValue": "={{ String($json.Date).startsWith($('Appel depuis un workflow').first().json.date) }}",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ]
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "264426fa-5f58-4298-bdb6-e20e2d9c28a6",
+      "name": "Select Refus",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.4,
+      "position": [
+        672,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "maxItems": 50
+      },
+      "id": "02ad4e2b-2efa-4969-a030-3df3c88683fe",
+      "name": "Cap 50",
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        896,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "removeLabels",
+        "messageId": "={{ $json['Email ID'] }}",
+        "labelIds": [
+          "INBOX"
+        ]
+      },
+      "id": "1feb3ea5-4b3a-4475-baad-ed39f12fbb39",
+      "name": "Archive Gmail",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1120,
+        0
+      ],
+      "webhookId": "7f6b9180-f618-455d-9eed-75830a6296ba",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "50w7rTCDeIGzSoHz",
+          "name": "Gmail account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "combinator": "and",
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "ok",
+              "leftValue": "={{ $json.id }}",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ]
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "38aa4317-e930-4a4e-a5e6-5f4d94fb7495",
+      "name": "Archived OK",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.4,
+      "position": [
+        1344,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "16b0IWlJ9RBPFeaQ863YyTHmm4pWztvT-SxerLX5Q5Fw"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "candidatures"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "Email ID"
+          ],
+          "value": {
+            "Email ID": "={{ $json.id }}",
+            "Action": "ARCHIVÉ"
+          },
+          "schema": [
+            {
+              "id": "Email ID",
+              "displayName": "Email ID",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Action",
+              "displayName": "Action",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "0d9151a1-ae15-4d1f-86df-84636cd27696",
+      "name": "Set Action Archive",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1568,
+        0
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "apQDheJMuIeVyriX",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "911560431",
+        "text": "=📥 {{ $('Set Action Archive').all().length }} refus archivés sur {{ $('Cap 50').all().length }} (date {{ $('Appel depuis un workflow').first().json.date }}).\nLes mails ont quitté la boîte de réception, rien n'est supprimé.",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "id": "eaac4887-3cd3-4f80-b50a-d23030c10c6f",
+      "name": "Send Summary",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1792,
+        0
+      ],
+      "executeOnce": true,
+      "webhookId": "de3ba003-d1af-4768-98c9-977cfb3b0a33",
+      "credentials": {
+        "telegramApi": {
+          "id": "W4lkGP4hs8fVSo6K",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Appel depuis un workflow": {
+      "main": [
+        [
+          {
+            "node": "Valid Date",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Valid Date": {
+      "main": [
+        [
+          {
+            "node": "Get Candidatures",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Candidatures": {
+      "main": [
+        [
+          {
+            "node": "Select Refus",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Select Refus": {
+      "main": [
+        [
+          {
+            "node": "Cap 50",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cap 50": {
+      "main": [
+        [
+          {
+            "node": "Archive Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Archive Gmail": {
+      "main": [
+        [
+          {
+            "node": "Archived OK",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Archived OK": {
+      "main": [
+        [
+          {
+            "node": "Set Action Archive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Action Archive": {
+      "main": [
+        [
+          {
+            "node": "Send Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": true
+  },
+  "versionId": "22101af4-9057-4574-b565-ab43aa32709d",
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp",
+    "instanceId": "8bc5fc1d77c6e196f583ac2ba9a38c7954574a960f4cfec8b5fa7623c276eea3"
+  },
+  "nodeGroups": [],
+  "id": "KDEj3VY9I9yYwvxa",
+  "tags": []
+}
